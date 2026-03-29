@@ -1,0 +1,134 @@
+# prometheus.yml — Prometheus Scrape Configuration
+# ====================================================
+# Author: Ashish — VCC Assignment 3
+#
+# This file tells Prometheus:
+#   1. How often to collect (scrape) metrics
+#   2. WHERE to scrape from (which services/ports)
+#
+# Prometheus will pull metrics from each "target" on the
+# defined scrape_interval and store them in its time-series DB.
+#
+# After editing this file, reload Prometheus without restart:
+#   curl -X POST http://localhost:9090/-/reload
+# ====================================================
+
+global:
+  # How often Prometheus scrapes all targets by default
+  scrape_interval: 15s          # Collect metrics every 15 seconds
+
+  # How long Prometheus waits for a scrape to complete before timing out
+  scrape_timeout: 10s
+
+  # How often Prometheus evaluates alerting rules
+  evaluation_interval: 15s
+
+  # Labels added to all metrics collected by this Prometheus instance
+  # Useful when you have multiple Prometheus servers
+  external_labels:
+    monitor: 'vcc-assignment3'
+    environment: 'local-vm'
+
+
+# ──────────────────────────────────────────────────────────────
+# SCRAPE CONFIGURATIONS
+# Each "job" defines a group of targets to scrape.
+# ──────────────────────────────────────────────────────────────
+scrape_configs:
+
+  # ── Job 1: Prometheus itself ────────────────────────────────
+  # Prometheus exposes its own internal metrics.
+  # Scraping itself lets you monitor Prometheus's health
+  # (e.g., how many targets are up, scrape duration, etc.)
+  - job_name: 'prometheus'
+    scrape_interval: 30s          # Scrape itself less frequently
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ── Job 2: Node Exporter (OS metrics) ──────────────────────
+  # Node Exporter exposes hundreds of OS-level metrics:
+  #   - CPU usage per core and mode (idle, user, system, iowait)
+  #   - RAM: total, used, available, cached, buffered
+  #   - Disk: read/write bytes, IOPS, space used per partition
+  #   - Network: bytes sent/received per interface
+  #   - System: load average, uptime, running processes
+  #
+  # Inside Docker, we reference the service by name "node-exporter"
+  # (Docker's internal DNS resolves service names automatically)
+  - job_name: 'node-exporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node-exporter'
+          host: 'vcc-ubuntu-vm'       # Label to identify this VM in dashboards
+
+  # ── Job 3: monitor.py Custom Metrics ───────────────────────
+  # Our Python monitoring script (monitor.py) uses the
+  # prometheus_client library to expose custom metrics at port 8000:
+  #
+  #   vcc_cpu_percent      — current CPU usage %
+  #   vcc_ram_percent      — current RAM usage %
+  #   vcc_disk_percent     — current Disk usage %
+  #   vcc_scaleup_total    — number of GCP scale-up triggers so far
+  #
+  # "host.docker.internal" is a special DNS name that resolves to
+  # the Docker host machine (the Ubuntu VM itself).
+  # This lets containers reach services running OUTSIDE Docker.
+  #
+  # Note: On Linux (Ubuntu VM), you may need to add this to
+  # docker-compose.yml's extra_hosts — it's handled automatically
+  # in the compose file above.
+  - job_name: 'vcc-monitor-py'
+    scrape_interval: 10s          # Match monitor.py's CHECK_INTERVAL
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+        labels:
+          service: 'monitor-py'
+          host: 'vcc-ubuntu-vm'
+
+  # ── Job 4: Flask App (optional) ────────────────────────────
+  # If you update app.py to expose a /metrics endpoint using
+  # prometheus_client, add it here. This would let you track
+  # request counts, latency, error rates, etc.
+  #
+  # Uncomment when ready:
+  # - job_name: 'flask-app'
+  #   scrape_interval: 15s
+  #   static_configs:
+  #     - targets: ['host.docker.internal:5000']
+  #       labels:
+  #         service: 'flask-app'
+
+
+# ──────────────────────────────────────────────────────────────
+# ALERTING RULES (optional advanced step)
+# You can define rules that fire alerts when conditions are met.
+# This is separate from our Python monitor.py alerts.
+#
+# To use: create a rules file and reference it here:
+# rule_files:
+#   - "alert_rules.yml"
+# ──────────────────────────────────────────────────────────────
+
+
+# ──────────────────────────────────────────────────────────────
+# USEFUL PROMQL QUERIES FOR GRAFANA PANELS:
+#
+# CPU usage % (across all cores):
+#   100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100)
+#
+# RAM usage %:
+#   (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+#
+# Disk usage % for root partition:
+#   (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100
+#
+# Custom metric — monitor.py CPU:
+#   vcc_cpu_percent
+#
+# GCP scale-up trigger count:
+#   vcc_scaleup_total
+# ──────────────────────────────────────────────────────────────

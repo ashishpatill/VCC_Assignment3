@@ -1,0 +1,22 @@
+# grafana_provisioning/datasources/prometheus.yml
+# ================================================
+# This file auto-configures Prometheus as Grafana's data source
+# when Grafana starts for the first time. You won't need to
+# manually add the data source through the UI.
+#
+# Grafana loads all files in /etc/grafana/provisioning/datasources/
+# at startup.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy           # Grafana's backend fetches data (not the browser)
+    url: http://prometheus:9090   # Docker service name — internal DNS
+    isDefault: true         # This is the default data source for new panels
+    editable: true          # Allow editing in the UI
+
+    jsonData:
+      timeInterval: "15s"   # Match prometheus scrape_interval
+      httpMethod: POST

@@ -1,0 +1,18 @@
+# grafana_provisioning/dashboards/dashboard.yml
+# ================================================
+# Tells Grafana where to find dashboard JSON files to auto-load.
+# Any .json files placed in the "path" folder below will be
+# automatically imported into Grafana on startup.
+
+apiVersion: 1
+
+providers:
+  - name: 'VCC Assignment 3'
+    orgId: 1
+    folder: 'VCC Assignment 3'     # Folder name in Grafana UI
+    type: file
+    disableDeletion: false          # Allow deleting from UI
+    editable: true
+    updateIntervalSeconds: 30       # Check for new/updated dashboard files every 30s
+    options:
+      path: /etc/grafana/provisioning/dashboards

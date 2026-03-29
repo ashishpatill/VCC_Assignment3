@@ -1,0 +1,48 @@
+# requirements.txt — VCC Assignment 3
+# =====================================
+# Install all dependencies with:
+#   pip install -r requirements.txt
+#
+# Using a virtual environment (recommended):
+#   python3 -m venv venv
+#   source venv/bin/activate      ← Linux/macOS (Ubuntu VM / UTM M1)
+#   pip install -r requirements.txt
+
+# ── Web Framework ────────────────────────────────────────────────
+flask==3.0.3
+# Flask: Lightweight Python web framework.
+# Used by app.py to serve HTTP endpoints (/, /status, /stress).
+
+# ── System Resource Monitoring ───────────────────────────────────
+psutil==5.9.8
+# psutil: Cross-platform library for process and system monitoring.
+# Used by monitor.py (alerts + GCP trigger) and app.py (/status endpoint).
+# Reads: CPU %, RAM usage, Disk usage, running processes, network IO.
+
+# ── HTTP Requests ────────────────────────────────────────────────
+requests==2.31.0
+# requests: Python HTTP library.
+# Used (optionally) for calling GCP REST APIs directly.
+
+# ── Prometheus Metrics Exporter ──────────────────────────────────
+prometheus-client==0.20.0
+# prometheus-client: Official Python client for Prometheus.
+# Used by monitor.py to expose custom metrics at http://localhost:8000/metrics
+#
+# Metrics exposed:
+#   vcc_cpu_percent      — current CPU usage %  (Gauge)
+#   vcc_ram_percent      — current RAM usage %  (Gauge)
+#   vcc_disk_percent     — current Disk usage % (Gauge)
+#   vcc_threshold_percent — alert threshold     (Gauge)
+#   vcc_scaleup_total    — GCP scale-up count   (Counter)
+#   vcc_monitor_info     — config metadata      (Info)
+#
+# Prometheus (running in Docker via docker-compose) scrapes these
+# every 10 seconds and stores them in its time-series database.
+# Grafana then reads from Prometheus to render live dashboards.
+
+# ── GCP Python SDK (optional — for production-grade GCP integration) ──
+# Uncomment to use Google Cloud Python client instead of gcloud CLI subprocess.
+#
+# google-cloud-compute==1.14.1
+# google-auth==2.29.0
