@@ -1,6 +1,6 @@
 # VCC Assignment 3 — Local VM + Resource Monitoring + GCP Auto-Scaling
 
-**Name:** Ashish Pisey | **Roll no.:** M25Ai2117| **Course:** Virtual Cloud Computing (VCC)
+**Name:** Ashish Pisey | **Roll no.:** M25Ai2117 | **Course:** Virtual Cloud Computing (VCC)
 
 > A hybrid cloud auto-scaling demo: monitor a local VirtualBox VM and automatically scale out to GCP when CPU/RAM/Disk exceeds 75%.
 
