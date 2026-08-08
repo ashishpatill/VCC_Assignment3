@@ -1,6 +1,4 @@
-# VCC Assignment 3 — Local VM + Resource Monitoring + GCP Auto-Scaling
-
-**Name:** Ashish Pisey | **Roll no.:** M25Ai2117 | **Course:** Virtual Cloud Computing (VCC)
+# Local VM + Resource Monitoring + GCP Auto-Scaling
 
 > A hybrid cloud auto-scaling demo: monitor a local VirtualBox VM and automatically scale out to GCP when CPU/RAM/Disk exceeds 75%.
 
@@ -9,7 +7,7 @@
 ## Repository Structure
 
 ```
-vcc_assignment3/
+vcc/
 │
 ├── app.py                 ← Flask web app (/ , /status, /stress endpoints)
 ├── monitor.py             ← Resource monitor (CPU/RAM/Disk → GCP trigger)
@@ -30,7 +28,7 @@ vcc_assignment3/
 
 ```bash
 cd ~
-git clone https://github.com/YOUR_USERNAME/vcc_assignment3.git
+git clone https://github.com/YOUR_USERNAME/vcc.git
 cd vcc_assignment3
 ```
 
